@@ -12,6 +12,7 @@ import NewProject from '@/pages/NewProject';
 import ProjectDetail from '@/pages/ProjectDetail';
 import ContentLibrary from '@/pages/ContentLibrary';
 import Analytics from '@/pages/Analytics';
+import ViralTracker from '@/pages/ViralTracker';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -46,6 +47,7 @@ const AuthenticatedApp = () => {
         <Route path="/ProjectDetail" element={<ProjectDetail />} />
         <Route path="/ContentLibrary" element={<ContentLibrary />} />
         <Route path="/Analytics" element={<Analytics />} />
+        <Route path="/ViralTracker" element={<ViralTracker />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

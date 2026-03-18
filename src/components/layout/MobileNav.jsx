@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Plus, Library, Sparkles, Menu, X, BarChart2 } from 'lucide-react';
+import { LayoutDashboard, Plus, Library, Sparkles, Menu, X, BarChart2, TrendingUp } from 'lucide-react';
 
 const navItems = [
   { path: '/Dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/NewProject', label: 'New Project', icon: Plus },
   { path: '/ContentLibrary', label: 'Content Library', icon: Library },
   { path: '/Analytics', label: 'Analytics', icon: BarChart2 },
+  { path: '/ViralTracker', label: 'Viral Tracker', icon: TrendingUp },
 ];
 
 export default function MobileNav() {

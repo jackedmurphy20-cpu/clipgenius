@@ -95,7 +95,7 @@ Also provide:
             },
           },
         },
-        add_context_from_internet: true,
+        model: 'gpt_5_mini',
       });
 
       // Step 3: Save clips

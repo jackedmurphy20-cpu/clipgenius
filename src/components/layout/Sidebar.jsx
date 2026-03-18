@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Plus, Library, Sparkles, LogOut } from 'lucide-react';
+import { LayoutDashboard, Plus, Library, Sparkles, LogOut, BarChart2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 const navItems = [
   { path: '/Dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/NewProject', label: 'New Project', icon: Plus },
   { path: '/ContentLibrary', label: 'Content Library', icon: Library },
+  { path: '/Analytics', label: 'Analytics', icon: BarChart2 },
 ];
 
 export default function Sidebar() {

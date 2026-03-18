@@ -38,6 +38,7 @@ export default function ViralTracker() {
     mutationFn: async (video) => {
       await base44.entities.ViralVideo.update(video.id, { status: 'analyzing' });
       queryClient.invalidateQueries({ queryKey: ['viralVideos'] });
+      // Keep reference to id in case of error
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `You are an expert short-form content strategist. Analyze this viral video URL and break down WHY it performs well.

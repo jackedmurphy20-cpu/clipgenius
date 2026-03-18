@@ -41,22 +41,24 @@ export default function NewProject() {
     }
 
     setIsGenerating(true);
+    let project = null;
 
-    const thumbnail_url = platform === 'youtube' ? extractYoutubeThumbnail(url) : '';
+    try {
+      const thumbnail_url = platform === 'youtube' ? extractYoutubeThumbnail(url) : '';
 
-    // Step 1: Create project
-    const project = await base44.entities.Project.create({
-      title: 'Analyzing content...',
-      source_url: url,
-      platform,
-      thumbnail_url,
-      status: 'processing',
-      clip_count: 0,
-    });
+      // Step 1: Create project
+      project = await base44.entities.Project.create({
+        title: 'Analyzing content...',
+        source_url: url,
+        platform,
+        thumbnail_url,
+        status: 'processing',
+        clip_count: 0,
+      });
 
-    // Step 2: Ask AI to analyze and generate clips
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a viral short-form content expert. Analyze this ${platform} URL: ${url}
+      // Step 2: Ask AI to analyze and generate clips
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are a viral short-form content expert. Analyze this ${platform} URL: ${url}
 
 Generate ${clipCount} short-form content ideas optimized for ${targetPlatform === 'youtube_shorts' ? 'YouTube Shorts' : targetPlatform === 'instagram_reels' ? 'Instagram Reels' : targetPlatform}.
 
@@ -71,60 +73,68 @@ For each clip, provide:
 Also provide:
 - An overall title for the source content
 - A brief summary of the source content`,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          source_title: { type: 'string' },
-          source_summary: { type: 'string' },
-          clips: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                title: { type: 'string' },
-                hook: { type: 'string' },
-                script: { type: 'string' },
-                duration_seconds: { type: 'number' },
-                timestamp_start: { type: 'string' },
-                timestamp_end: { type: 'string' },
-                hashtags: { type: 'string' },
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            source_title: { type: 'string' },
+            source_summary: { type: 'string' },
+            clips: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  title: { type: 'string' },
+                  hook: { type: 'string' },
+                  script: { type: 'string' },
+                  duration_seconds: { type: 'number' },
+                  timestamp_start: { type: 'string' },
+                  timestamp_end: { type: 'string' },
+                  hashtags: { type: 'string' },
+                },
               },
             },
           },
         },
-      },
-      add_context_from_internet: true,
-    });
+        add_context_from_internet: true,
+      });
 
-    // Step 3: Save clips
-    const clipsToCreate = result.clips.map(clip => ({
-      project_id: project.id,
-      title: clip.title,
-      hook: clip.hook,
-      script: clip.script,
-      target_platform: targetPlatform,
-      duration_seconds: clip.duration_seconds,
-      timestamp_start: clip.timestamp_start,
-      timestamp_end: clip.timestamp_end,
-      hashtags: clip.hashtags,
-      status: 'draft',
-    }));
+      // Step 3: Save clips
+      const clipsToCreate = result.clips.map(clip => ({
+        project_id: project.id,
+        title: clip.title,
+        hook: clip.hook,
+        script: clip.script,
+        target_platform: targetPlatform,
+        duration_seconds: clip.duration_seconds,
+        timestamp_start: clip.timestamp_start,
+        timestamp_end: clip.timestamp_end,
+        hashtags: clip.hashtags,
+        status: 'draft',
+      }));
 
-    await base44.entities.ContentClip.bulkCreate(clipsToCreate);
+      await base44.entities.ContentClip.bulkCreate(clipsToCreate);
 
-    // Step 4: Update project
-    await base44.entities.Project.update(project.id, {
-      title: result.source_title || 'Untitled Project',
-      summary: result.source_summary || '',
-      status: 'completed',
-      clip_count: clipsToCreate.length,
-    });
+      // Step 4: Update project
+      await base44.entities.Project.update(project.id, {
+        title: result.source_title || 'Untitled Project',
+        summary: result.source_summary || '',
+        status: 'completed',
+        clip_count: clipsToCreate.length,
+      });
 
-    queryClient.invalidateQueries({ queryKey: ['projects'] });
-    queryClient.invalidateQueries({ queryKey: ['clips'] });
-    toast.success(`Generated ${clipsToCreate.length} clip ideas!`);
-    navigate(`/ProjectDetail?id=${project.id}`);
-    setIsGenerating(false);
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['clips'] });
+      toast.success(`Generated ${clipsToCreate.length} clip ideas!`);
+      navigate(`/ProjectDetail?id=${project.id}`);
+    } catch (err) {
+      toast.error('Something went wrong. Please try again.');
+      if (project?.id) {
+        await base44.entities.Project.update(project.id, { status: 'failed' });
+        queryClient.invalidateQueries({ queryKey: ['projects'] });
+      }
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (

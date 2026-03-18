@@ -24,7 +24,7 @@ const statusColors = {
   published: 'bg-chart-3/15 text-chart-3',
 };
 
-export default function ClipCard({ clip }) {
+export default function ClipCard({ clip, onPreview, isActive }) {
   const [expanded, setExpanded] = useState(false);
 
   const copyScript = () => {
@@ -33,7 +33,7 @@ export default function ClipCard({ clip }) {
   };
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-5 hover:border-primary/20 transition-all">
+    <div className={`bg-card rounded-2xl border p-5 transition-all ${isActive ? 'border-primary/50 ring-1 ring-primary/20' : 'border-border hover:border-primary/20'}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-semibold text-foreground">{clip.title}</h3>
@@ -83,6 +83,11 @@ export default function ClipCard({ clip }) {
         <Button size="sm" variant="ghost" className="text-xs h-8" onClick={copyScript}>
           <Copy className="w-3 h-3 mr-1" /> Copy Script
         </Button>
+        {onPreview && (
+          <Button size="sm" variant="ghost" className={`text-xs h-8 ${isActive ? 'text-primary' : ''}`} onClick={onPreview}>
+            <Play className="w-3 h-3 mr-1" /> Preview
+          </Button>
+        )}
         {clip.hashtags && (
           <span className="flex items-center gap-1 text-[11px] text-muted-foreground ml-auto">
             <Hash className="w-3 h-3" /> {clip.hashtags}

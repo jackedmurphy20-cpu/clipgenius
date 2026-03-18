@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Copy, Clock, Hash, ChevronDown, ChevronUp } from 'lucide-react';
+import { Copy, Clock, Hash, ChevronDown, ChevronUp, Play } from 'lucide-react';
 import { toast } from 'sonner';
 
 const platformColors = {
